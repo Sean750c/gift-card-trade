@@ -137,7 +137,7 @@ export default function HomeScreen() {
                 key={card.id}
                 cardType={card.type}
                 rate={card.rate}
-                trend={card.trend}
+                trend={card.trend as 'up' | 'down' | 'stable'}
                 icon={card.icon}
               />
             ))}

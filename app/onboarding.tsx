@@ -33,7 +33,15 @@ export default function Onboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
-  const renderItem = ({ item }) => (
+// 定义 onboardingData 项的类型
+type OnboardingItem = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+};
+
+const renderItem = ({ item }: { item: OnboardingItem }) => (
     <View style={[styles.slide, { width }]}>
       <View style={styles.imageContainer}>
         <Image 
