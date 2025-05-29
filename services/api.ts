@@ -99,8 +99,14 @@ class ApiService {
   }
 
   async getCountryList(): Promise<Country[]> {
-    const response = await this.request<Country[]>('/gc/public/countrylist');
-    return response.data;
+    try {
+      const response = await this.request<Country[]>('/gc/public/countrylist');
+      // Ensure we always return an array, even if response.data is undefined
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch country list:', error);
+      return [];
+    }
   }
 }
 
