@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, ActivityIndicator } from 'react-native';
 import { useCountry } from '@/hooks/useCountry';
 import { useTheme } from '@/hooks/useTheme';
-import { ChevronDown, X } from 'lucide-react-native';
+import { ChevronDown, X, RefreshCw } from 'lucide-react-native';
 import { Country } from '@/services/api';
 
 export default function CountrySelector() {
   const { colors } = useTheme();
-  const { countries, selectedCountry, setSelectedCountry } = useCountry();
+  const { countries, selectedCountry, setSelectedCountry, loading, error, refreshCountries } = useCountry();
   const [isOpen, setIsOpen] = useState(false);
 
   const renderCountryItem = ({ item }: { item: Country }) => (
@@ -32,6 +32,36 @@ export default function CountrySelector() {
       </View>
     </TouchableOpacity>
   );
+
+  const renderHeader = () => {
+    if (loading) {
+      return (
+        <View style={styles.statusContainer}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={[styles.statusText, { color: colors.textSecondary }]}>
+            Loading countries...
+          </Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.statusContainer}>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+          <TouchableOpacity 
+            style={[styles.retryButton, { backgroundColor: colors.primary }]}
+            onPress={refreshCountries}
+          >
+            <RefreshCw size={16} color="white" />
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <>
@@ -70,6 +100,8 @@ export default function CountrySelector() {
               <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
+
+          {renderHeader()}
 
           <FlatList
             data={countries}
@@ -143,5 +175,32 @@ const styles = StyleSheet.create({
   currencyInfo: {
     fontSize: 14,
     fontFamily: 'WorkSans-Regular',
+  },
+  statusContainer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  statusText: {
+    fontSize: 14,
+    fontFamily: 'WorkSans-Medium',
+    marginTop: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: 'WorkSans-Medium',
+    marginBottom: 12,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: 'WorkSans-Medium',
+    marginLeft: 8,
   },
 });

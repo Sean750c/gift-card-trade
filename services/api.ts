@@ -62,27 +62,28 @@ class ApiService {
     method: string = 'GET',
     params: Record<string, string> = {}
   ): Promise<ApiResponse<T>> {
-    // Add appid to params
-    const allParams = {
-      ...params,
-      appid: APP_ID,
-    };
-
-    // Generate signature
-    const md5sign = this.generateSignature(allParams);
-
-    // Construct URL with parameters and signature
-    const queryString = Object.entries({ ...allParams, md5sign })
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join('&');
-
-    const url = `${BASE_URL}${endpoint}?${queryString}`;
-
     try {
+      // Add appid to params
+      const allParams = {
+        ...params,
+        appid: APP_ID,
+      };
+
+      // Generate signature
+      const md5sign = this.generateSignature(allParams);
+
+      // Construct URL with parameters and signature
+      const queryString = Object.entries({ ...allParams, md5sign })
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&');
+
+      const url = `${BASE_URL}${endpoint}?${queryString}`;
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
         },
       });
 
@@ -90,7 +91,12 @@ class ApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ApiResponse<T> = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.msg || 'API request failed');
+      }
+
       return data;
     } catch (error) {
       console.error('API request failed:', error);
@@ -100,9 +106,14 @@ class ApiService {
 
   async getCountryList(): Promise<Country[]> {
     try {
-      const response = await this.request<Country[]>('/gc/public/countrylist');
-      // Ensure we always return an array, even if response.data is undefined
-      return response.data || [];
+      const response = await this.request<Country[]>('/gc/public/countrylist', 'POST');
+      
+      if (!Array.isArray(response.data)) {
+        console.warn('Country list data is not an array:', response.data);
+        return [];
+      }
+
+      return response.data;
     } catch (error) {
       console.error('Failed to fetch country list:', error);
       return [];

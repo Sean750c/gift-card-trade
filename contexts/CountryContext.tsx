@@ -7,6 +7,7 @@ type CountryContextType = {
   setSelectedCountry: (country: Country) => void;
   loading: boolean;
   error: string | null;
+  refreshCountries: () => Promise<void>;
 };
 
 export const CountryContext = createContext<CountryContextType>({
@@ -15,6 +16,7 @@ export const CountryContext = createContext<CountryContextType>({
   setSelectedCountry: () => {},
   loading: false,
   error: null,
+  refreshCountries: async () => {},
 });
 
 export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -23,15 +25,21 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadCountries();
-  }, []);
-
   const loadCountries = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const countryList = await api.getCountryList();
+      
+      if (countryList.length === 0) {
+        setError('No countries available');
+        return;
+      }
+      
       setCountries(countryList);
-      if (countryList.length > 0) {
+      
+      // Only set selected country if none is selected yet
+      if (!selectedCountry && countryList.length > 0) {
         setSelectedCountry(countryList[0]);
       }
     } catch (err) {
@@ -42,6 +50,11 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  // Initial load
+  useEffect(() => {
+    loadCountries();
+  }, []);
+
   return (
     <CountryContext.Provider
       value={{
@@ -50,6 +63,7 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setSelectedCountry,
         loading,
         error,
+        refreshCountries: loadCountries,
       }}
     >
       {children}
