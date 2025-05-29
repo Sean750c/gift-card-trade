@@ -2,7 +2,7 @@ import { MD5 } from 'crypto-js';
 
 const BASE_URL = 'https://test-giftcard8-api.gcard8.com';
 const APP_KEY = 'f55b967cad863f21a385e904dceae165';
-const APP_ID = 'ios-v1';
+const APP_ID = 'web-v1';
 
 export interface Country {
   id: number;
