@@ -83,7 +83,6 @@ class ApiService {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
         },
       });
 
