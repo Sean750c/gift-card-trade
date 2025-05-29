@@ -63,43 +63,48 @@ class ApiService {
     params: Record<string, string> = {}
   ): Promise<ApiResponse<T>> {
     try {
-      // Add appid to params
-      const allParams = {
-        ...params,
-        appid: APP_ID,
-      };
+      // 合并参数（包含 appid）
+      const allParams = { ...params, appid: APP_ID };
 
-      // Generate signature
-      const md5sign = this.generateSignature(allParams);
+      // 生成签名（根据 API 要求用 sign 或 md5sign）
+      const sign = this.generateSignature(allParams);
 
-      // Construct URL with parameters and signature
-      const queryString = Object.entries({ ...allParams, md5sign })
-        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-        .join('&');
-
-      const url = `${BASE_URL}${endpoint}?${queryString}`;
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // 基础请求配置
+      const headers = new Headers({
+        'User-Agent': 'Your-App-Name/1.0.0', // 按需修改
       });
 
+      const requestOptions: RequestInit = { method, headers };
+
+      // 区分 GET 和其他方法
+      if (method.toUpperCase() === 'GET') {
+        // GET：参数拼接到 URL
+        const query = new URLSearchParams({ ...allParams, sign });
+        endpoint += `?${query.toString()}`;
+      } else {
+        // POST/PUT 等：参数放 body
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        const body = new URLSearchParams({ ...allParams, sign });
+        requestOptions.body = body;
+      }
+
+      // 发送请求
+      const response = await fetch(`${BASE_URL}${endpoint}`, requestOptions);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP 错误！状态码: ${response.status}`);
       }
 
       const data: ApiResponse<T> = await response.json();
       
       if (!data.success) {
-        throw new Error(data.msg || 'API request failed');
+        throw new Error(data.msg || 'API 请求失败');
       }
 
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+      console.error('请求失败:', error);
+      throw error; // 或返回统一错误格式
     }
   }
 
