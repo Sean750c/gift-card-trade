@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { Chrome as Home, Repeat, Clock, User, SlidersHorizontal } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { Platform } from 'react-native';
+import CountrySelector from '@/components/CountrySelector';
 
 export default function TabLayout() {
   const { colors, isDark } = useTheme();
@@ -37,7 +38,8 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-          headerShown: false,
+          headerShown: true,
+          headerLeft: () => <CountrySelector />,
         }}
       />
       <Tabs.Screen

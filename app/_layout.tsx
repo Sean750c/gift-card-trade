@@ -12,6 +12,7 @@ import {
 import { SplashScreen } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { CountryProvider } from '@/contexts/CountryContext';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -41,15 +42,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
-          <Stack.Screen name="auth" options={{ animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-          <Stack.Screen name="card-details/[id]" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="verification" options={{ animation: 'slide_from_right' }} />
-          <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
-        </Stack>
-        <StatusBar style="auto" />
+        <CountryProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
+            <Stack.Screen name="auth" options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+            <Stack.Screen name="card-details/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="verification" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
+          </Stack>
+          <StatusBar style="auto" />
+        </CountryProvider>
       </AuthProvider>
     </ThemeProvider>
   );
