@@ -6,6 +6,7 @@ type User = {
   fullName: string;
   email: string;
   phone: string;
+  countryId: number;
 };
 
 type AuthContextType = {
@@ -60,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullName: 'John Doe',
         email: email,
         phone: '+234 812 345 6789',
+        countryId: 14,
       };
       
       await AsyncStorage.setItem('user', JSON.stringify(mockUser));
@@ -105,6 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullName: tempUserData.fullName,
         email: tempUserData.email,
         phone: tempUserData.phone,
+        countryId: 14,
       };
       
       await AsyncStorage.setItem('user', JSON.stringify(mockUser));

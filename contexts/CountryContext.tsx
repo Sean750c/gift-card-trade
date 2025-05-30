@@ -61,8 +61,9 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCountries(countryList);
       
       // If user is logged in, try to find their country
-      if (user?.country) {
-        const userCountry = countryList.find(c => c.id === user.country.id);
+      if (user?.countryId) {
+        // 为了解决类型不匹配的问题，将 user.countryId 转换为数字类型
+        const userCountry = countryList.find(c => c.id === user.countryId);
         if (userCountry) {
           setSelectedCountry(userCountry);
           return;

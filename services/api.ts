@@ -69,25 +69,26 @@ class ApiService {
       // 生成签名（根据 API 要求用 sign 或 md5sign）
       const sign = this.generateSignature(allParams);
 
-      // 基础请求配置
-      const headers = new Headers({
-        'User-Agent': 'Your-App-Name/1.0.0', // 按需修改
-      });
+      // 创建正确的请求头 - 关键修改点1
+      const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded' 
+      };
 
-      const requestOptions: RequestInit = { method, headers };
+      // 准备请求体 - 关键修改点2
+      const payload = {
+        ...allParams,
+        sign
+      };
+      
+      console.log('Payload:', payload); // 调试用
 
-      // 区分 GET 和其他方法
-      if (method.toUpperCase() === 'GET') {
-        // GET：参数拼接到 URL
-        const query = new URLSearchParams({ ...allParams, sign });
-        endpoint += `?${query.toString()}`;
-      } else {
-        // POST/PUT 等：参数放 body
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        const body = new URLSearchParams({ ...allParams, sign });
-        requestOptions.body = body;
-      }
+      const requestOptions: RequestInit = {
+        method,
+        headers, // 直接使用对象，不是 Headers 实例
+        body: new URLSearchParams(payload).toString() // 转换为 URLSearchParams 并转换为字符串
+      };
 
+      console.log('Request options:', requestOptions); // 调试用
       // 发送请求
       const response = await fetch(`${BASE_URL}${endpoint}`, requestOptions);
 
