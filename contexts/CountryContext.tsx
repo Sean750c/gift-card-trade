@@ -48,7 +48,7 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(true);
       setError(null);
       const countryList = await api.getCountryList();
-      
+      console.log(countryList);
       if (!Array.isArray(countryList) || countryList.length === 0) {
         setError('No countries available');
         setCountries([DEFAULT_COUNTRY]);
