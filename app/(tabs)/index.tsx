@@ -6,10 +6,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '@/hooks/useTheme';
 import { useCurrencyFormat } from '@/hooks/useCurrencyFormat';
 import { useAuth } from '@/hooks/useAuth';
+import { useCountry } from '@/hooks/useCountry';
 import { Bell, ChevronRight, Wallet, TrendingUp, CirclePlus as PlusCircle } from 'lucide-react-native';
 import RateCard from '@/components/RateCard';
 import QuickActionButton from '@/components/QuickActionButton';
-import { useCountry } from '@/hooks/useCountry';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -62,9 +62,17 @@ export default function HomeScreen() {
             Welcome back,
           </Text>
           <View style={styles.nameContainer}>
-            <Text style={[styles.flag]}>
-              {selectedCountry?.national_flag || '🇳🇬'}
-            </Text>
+            {selectedCountry?.image ? (
+              <Image 
+                source={{ uri: selectedCountry.image }} 
+                style={styles.flagImage} 
+                resizeMode="cover"
+              />
+            ) : (
+              <Text style={styles.flag}>
+                {selectedCountry?.national_flag || '🇳🇬'}
+              </Text>
+            )}
             <Text style={[styles.userName, { color: colors.text }]}>
               {user?.fullName || 'User'}
             </Text>
@@ -178,6 +186,12 @@ const styles = StyleSheet.create({
   },
   flag: {
     fontSize: 20,
+    marginRight: 8,
+  },
+  flagImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     marginRight: 8,
   },
   userName: {
