@@ -29,7 +29,7 @@ const DEFAULT_COUNTRY: Country = {
   national_flag: "🇳🇬",
   withdrawal_method: 1,
   money_detail: 1,
-  image: "",
+  image: "https://yhobject.obs.af-south-1.myhuaweicloud.com:443/yhadmin/306135f91648764433284.jpg?x-image-process=image/resize,m_lfit,h_90,w_90",
   area_number: "234",
   code: "",
   rebate_money: "0",
