@@ -38,7 +38,6 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -46,7 +45,6 @@ export default function TabLayout() {
         options={{
           title: 'Trade',
           tabBarIcon: ({ color, size }) => <Repeat size={size} color={color} />,
-          headerShown: false,
         }}
       />
       <Tabs.Screen
