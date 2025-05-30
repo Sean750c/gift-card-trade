@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Bell, ChevronRight, Wallet, TrendingUp, CirclePlus as PlusCircle } from 'lucide-react-native';
 import RateCard from '@/components/RateCard';
 import QuickActionButton from '@/components/QuickActionButton';
+import { useCountry } from '@/hooks/useCountry';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -17,11 +18,11 @@ export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { formatCurrency } = useCurrencyFormat();
   const { user } = useAuth();
+  const { selectedCountry } = useCountry();
   const [refreshing, setRefreshing] = useState(false);
   const [balance, setBalance] = useState(0);
   const [pendingTransactions, setPendingTransactions] = useState(0);
   const [completedTransactions, setCompletedTransactions] = useState(0);
-  const [recentCards, setRecentCards] = useState([]);
   const [popularCards, setPopularCards] = useState([
     { id: '1', type: 'Amazon', rate: 0.8, trend: 'up', icon: 'amazon' },
     { id: '2', type: 'iTunes', rate: 0.75, trend: 'down', icon: 'itunes' },
@@ -30,12 +31,10 @@ export default function HomeScreen() {
   ]);
 
   useEffect(() => {
-    // Mock data loading
     loadDashboardData();
   }, []);
 
   const loadDashboardData = () => {
-    // This would fetch data from an API in a real app
     setBalance(25000);
     setPendingTransactions(2);
     setCompletedTransactions(15);
@@ -58,13 +57,18 @@ export default function HomeScreen() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       
       <View style={styles.header}>
-        <View>
+        <View style={styles.userInfo}>
           <Text style={[styles.greeting, { color: colors.textSecondary }]}>
             Welcome back,
           </Text>
-          <Text style={[styles.userName, { color: colors.text }]}>
-            {user?.fullName || 'User'}
-          </Text>
+          <View style={styles.nameContainer}>
+            <Text style={[styles.flag]}>
+              {selectedCountry?.national_flag || '🇳🇬'}
+            </Text>
+            <Text style={[styles.userName, { color: colors.text }]}>
+              {user?.fullName || 'User'}
+            </Text>
+          </View>
         </View>
         <TouchableOpacity style={[styles.notificationButton, { backgroundColor: colors.card }]}>
           <Bell size={24} color={colors.text} />
@@ -143,40 +147,6 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
         </View>
-
-        <View style={styles.recentTransactionsContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
-            <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={[styles.viewAllText, { color: colors.primary }]}>View All</Text>
-              <ChevronRight size={18} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-          
-          {recentCards.length > 0 ? (
-            <View>
-              {/* Transactions would be listed here */}
-            </View>
-          ) : (
-            <View style={[styles.emptyStateContainer, { backgroundColor: colors.card }]}>
-              <Image 
-                source={{ uri: 'https://images.pexels.com/photos/7176026/pexels-photo-7176026.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' }} 
-                style={styles.emptyStateImage}
-                resizeMode="contain"
-              />
-              <Text style={[styles.emptyStateTitle, { color: colors.text }]}>No Transactions Yet</Text>
-              <Text style={[styles.emptyStateDescription, { color: colors.textSecondary }]}>
-                Start trading gift cards to see your transactions here
-              </Text>
-              <TouchableOpacity 
-                style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
-                onPress={navigateToTrade}
-              >
-                <Text style={styles.emptyStateButtonText}>Start Trading</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
         
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -195,9 +165,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
+  userInfo: {
+    flex: 1,
+  },
   greeting: {
     fontSize: 14,
     fontFamily: 'WorkSans-Regular',
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  flag: {
+    fontSize: 20,
+    marginRight: 8,
   },
   userName: {
     fontSize: 20,
@@ -296,43 +277,6 @@ const styles = StyleSheet.create({
   ratesScroll: {
     paddingLeft: 20,
     paddingRight: 8,
-  },
-  recentTransactionsContainer: {
-    marginBottom: 24,
-  },
-  emptyStateContainer: {
-    marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-  },
-  emptyStateImage: {
-    width: SCREEN_WIDTH * 0.4,
-    height: SCREEN_WIDTH * 0.4,
-    marginBottom: 16,
-    borderRadius: 12,
-  },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontFamily: 'WorkSans-Bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyStateDescription: {
-    fontSize: 14,
-    fontFamily: 'WorkSans-Regular',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  emptyStateButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  emptyStateButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontFamily: 'WorkSans-SemiBold',
   },
   bottomPadding: {
     height: 24,

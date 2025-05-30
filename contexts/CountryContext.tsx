@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { api, Country } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 
 type CountryContextType = {
   countries: Country[];
@@ -19,7 +20,24 @@ export const CountryContext = createContext<CountryContextType>({
   refreshCountries: async () => {},
 });
 
+const DEFAULT_COUNTRY: Country = {
+  id: 1,
+  name: "Nigeria",
+  short_name: "NG",
+  currency_name: "NGN",
+  currency_symbol: "₦",
+  national_flag: "🇳🇬",
+  withdrawal_method: 1,
+  money_detail: 1,
+  image: "",
+  area_number: "234",
+  code: "",
+  rebate_money: "0",
+  rebate_money_register: "0"
+};
+
 export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [countries, setCountries] = useState<Country[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,20 +49,37 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setError(null);
       const countryList = await api.getCountryList();
       
-      if (countryList.length === 0) {
+      if (!Array.isArray(countryList) || countryList.length === 0) {
         setError('No countries available');
+        setCountries([DEFAULT_COUNTRY]);
+        if (!selectedCountry) {
+          setSelectedCountry(DEFAULT_COUNTRY);
+        }
         return;
       }
       
       setCountries(countryList);
       
-      // Only set selected country if none is selected yet
-      if (!selectedCountry && countryList.length > 0) {
-        setSelectedCountry(countryList[0]);
+      // If user is logged in, try to find their country
+      if (user?.country) {
+        const userCountry = countryList.find(c => c.id === user.country.id);
+        if (userCountry) {
+          setSelectedCountry(userCountry);
+          return;
+        }
+      }
+      
+      // If no country is selected or user is not logged in, use Nigeria as default
+      if (!selectedCountry) {
+        const nigeria = countryList.find(c => c.short_name === 'NG') || DEFAULT_COUNTRY;
+        setSelectedCountry(nigeria);
       }
     } catch (err) {
       setError('Failed to load countries');
       console.error(err);
+      // Set default country if error occurs
+      setCountries([DEFAULT_COUNTRY]);
+      setSelectedCountry(DEFAULT_COUNTRY);
     } finally {
       setLoading(false);
     }
@@ -53,7 +88,7 @@ export const CountryProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Initial load
   useEffect(() => {
     loadCountries();
-  }, []);
+  }, [user]); // Reload when user changes
 
   return (
     <CountryContext.Provider
